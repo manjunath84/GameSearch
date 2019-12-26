@@ -34,14 +34,6 @@ public class GameController {
 	 */
 	@GetMapping("/search")
 	public List<Game> getGames(@RequestParam(name="startsWith") String startsWith){
-		/*
-		 * Game game = new Game(); game.setGenre("GAME");
-		 * game.setImageUrl("www.someimageurl.com"); game.setSubgenre("Puzzle");
-		 * game.setTitle("Some Game Title"); game.setPid("com.mistplay.game");
-		 * game.setRating(4.6f); game.setrCount(170865);
-		 * 
-		 * List<Game> games = new ArrayList<Game>(); games.add(game);
-		 */	
 		return gameSearchUtil.searchGames(startsWith);
 	}
 }

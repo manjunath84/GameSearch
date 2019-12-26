@@ -1,6 +1,7 @@
 package com.mistplay.game.utils;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
@@ -40,47 +41,86 @@ public class GameSearchUtil {
 
 	public List<Game> searchGames(String startsWith) {
 
-		int result = binarySearch(0, games.size()-1, startsWith);
+		int result = binarySearch(0, games.size()-1, startsWith);		
 		
-		int startIndex = 0;
-		
-		if(result>0) {
-			startIndex = binarySearch(0, result, startsWith);
+		if(result>=0) {			
+			return games.subList(getStartIndex(result, startsWith), getEndIndex(result, startsWith)+1);
+		} else {
+			return new ArrayList<Game>();
 		}		
-				
-	    int endIndex = binarySearch(result, games.size()-1, startsWith);
-
-	    System.out.println(result+" startIndex - "+startIndex+" end Index - "+endIndex);
-		return games.subList(startIndex, endIndex);
+	}
+	
+	private int getStartIndex(int middleIndex, String startsWith) {
+		int tempIndex = middleIndex;
+		int tempEndIndex = middleIndex;
+		while(tempIndex!=-1) {
+			tempEndIndex = tempIndex;
+			tempIndex = binarySearch(0, tempEndIndex, startsWith);
+			if(tempIndex==middleIndex || tempIndex == tempEndIndex) {
+				tempEndIndex = tempIndex;
+				tempIndex = -1;
+			}
+		}
+		return tempEndIndex;
+		
+	}
+	
+	private int getEndIndex(int middleIndex, String startsWith) {
+		int tempStartIndex = middleIndex;
+		int tempIndex = tempStartIndex+1;
+		int endIndex = middleIndex;
+		while(true) {
+			tempStartIndex = tempIndex;
+			tempIndex = binarySearch(tempStartIndex, games.size()-1, startsWith);
+			if(tempIndex==games.size()-1) {
+				tempStartIndex = tempIndex;
+				endIndex = tempIndex;
+				tempIndex = -1;
+			}
+			
+			if(tempIndex==-1) {
+				break;
+			}
+			endIndex = tempIndex;
+			if(tempIndex == tempStartIndex) {
+				tempIndex++;
+			}
+			
+		}
+		return endIndex;
 	}
 
+    private int compareGameWithKey(int gameIndex, String startsWith){
+    	int keyLength = startsWith.length();
+		
+		return startsWith.compareToIgnoreCase(games.get(gameIndex).getTitle().substring(0, keyLength));
+    }
+    
 	private int binarySearch(int l, int r, String startsWith) {
-		// int l = 0, r = arr.length - 1;
-		// String startsWithKey = startsWithKey.toLowerCase()+".*";
 		int keyLength = startsWith.length();
 
-		while (l < r) {
+		while (l <= r) {
 			int m = l + (r - l) / 2;
 			
-			System.out.println(m);
 
-			int res = games.get(m).getTitle().toLowerCase().substring(0, keyLength - 1)
-					.compareToIgnoreCase(startsWith.toLowerCase());
+			int res = compareGameWithKey(m,startsWith);
 
-			// Check if x is present at mid
-			if (res == 0)
+			// Check if startsWith key is present at mid
+			if (res == 0) {
 				return m;
+			}
+				
 
-			// If x greater, ignore left half
+			// If startsWith key is greater than current game title, ignore left half
 			if (res > 0)
 				l = m + 1;
 
-			// If x is smaller, ignore right half
+			// If startsWith key is lesser than current game title, ignore right half
 			else
 				r = m - 1;
 		}
 
-		return l;
+		return -1;
 	}
 
 }
