@@ -3,10 +3,8 @@
  */
 package com.mistplay.game.controllers;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
@@ -17,7 +15,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.util.UriComponentsBuilder;
 
 import com.mistplay.game.entities.Game;
 import com.mistplay.game.exceptions.ResourceNotFoundException;
@@ -39,14 +36,15 @@ public class GameController {
 
 	/**
 	 * 
-	 * This method returns all the game data from the system
+	 * This method returns all the game data from the system whose title starts with the given key
 	 * 
+	 * @Param startsWith The key to search for
+	 * @param pageable The pagination query parameters will be automatically mapped to this object.
 	 * @return List<Game> List of all Games starting with the given startsWith
 	 *         String
 	 */
 	@GetMapping("/search")
-	public Page<Game> getGames(@RequestParam(name = "startsWith") String startsWith, Pageable pageable,
-			final UriComponentsBuilder uriBuilder, final HttpServletResponse response) {
+	public Page<Game> getGames(@RequestParam(name = "startsWith") String startsWith, Pageable pageable) {
 		List<Game> gameList = gameSearchUtil.searchGames(startsWith);
 		if (pageable.getPageNumber() > gameList.size()) {
             throw new ResourceNotFoundException();
@@ -57,10 +55,7 @@ public class GameController {
 		
 		Page<Game> page 
 		  = new PageImpl<Game>(gameList.subList(start, end), pageable, gameList.size());
-		
-		String resourceName = Game.class.getSimpleName().toString().toLowerCase();
-		 uriBuilder.path( "/search/" + resourceName );
-
+	
 		return page;
 	}
 }
